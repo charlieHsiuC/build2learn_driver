@@ -1,0 +1,22 @@
+CompileFlags:
+  # kernel Makefile 丟出來、clangd 常消化不良的旗標先拿掉
+  Remove:
+    - -m*
+    - -f*sanitize*
+    - -fno-allow-store-data-races
+    - -fconserve-stack
+    - -fno-var-tracking-assignments
+    - -mindirect-branch*
+    - -mfunction-return*
+    - -ftrivial-auto-var-init=*
+    - --param*
+    - -Werror*
+  Add:
+    - -Wno-unused-command-line-argument
+    - -ferror-limit=0
+Index:
+  Background: Build
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
+    - pp_file_not_found
