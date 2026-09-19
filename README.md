@@ -21,14 +21,6 @@ make
 bear -- make
 ```
 
-## Run
-
-```bash
-sudo insmod src/01-hello-world/hello-world.ko
-sudo dmesg | tail -n 10
-sudo rmmod hello-world
-```
-
 ## Lesson Learned
 
 ### 01-hello-world
@@ -43,6 +35,14 @@ sudo rmmod hello-world
   - `pr_info` is used to print information to the kernel log.
   - `dmesg` to view the kernel log.
 
+Run `01-hello-world`:
+
+```bash
+sudo insmod src/01-hello-world/hello-world.ko
+sudo dmesg | tail -n 10
+sudo rmmod hello-world
+```
+
 ### 02-module-param
 
 - `module_param`, `module_param_string`: used to define module parameters.
@@ -53,3 +53,12 @@ sudo rmmod hello-world
   - `cat /sys/module/<module_name>/parameters/<parameter_name>` to read the module parameters.
 - write module parameters to sysfs
   - `echo <value> | sudo tee /sys/module/<module_name>/parameters/<parameter_name>` to write the module parameters.
+  - `cat /sys/module/module-param/parameters/int_param` to read the module parameters to check if the parameters are set correctly.
+
+Run `02-module-param`:
+
+```bash
+sudo insmod src/02-module-param/module-param.ko int_param=10 bool_param=1 char_param=a string_param=hello
+sudo dmesg | tail -n 10
+sudo rmmod module-param
+```
