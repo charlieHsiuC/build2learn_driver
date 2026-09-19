@@ -42,3 +42,14 @@ sudo rmmod hello-world
 - `pr_info`
   - `pr_info` is used to print information to the kernel log.
   - `dmesg` to view the kernel log.
+
+### 02-module-param
+
+- `module_param`, `module_param_string`: used to define module parameters.
+  - these macros expand to functions and variables that are used to store the module parameters, so they should be declared outside of functions.
+- `MODULE_PARM_DESC`: used to describe the module parameters.
+  - `modinfo <module_name>.ko` to view the module parameters.
+- read module parameters from sysfs
+  - `cat /sys/module/<module_name>/parameters/<parameter_name>` to read the module parameters.
+- write module parameters to sysfs
+  - `echo <value> | sudo tee /sys/module/<module_name>/parameters/<parameter_name>` to write the module parameters.
