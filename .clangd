@@ -10,6 +10,9 @@ CompileFlags:
     - -ftrivial-auto-var-init=*
     - --param*
     - -Werror*
+    - -fzero-init-padding-bits=all
+    - -fmin-function-alignment=8
+    - -fsanitize=bounds-strict
   Add:
     - -Wno-unused-command-line-argument
     - -ferror-limit=0
