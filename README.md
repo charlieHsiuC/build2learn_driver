@@ -53,12 +53,12 @@ sudo rmmod hello-world
   - `cat /sys/module/<module_name>/parameters/<parameter_name>` to read the module parameters.
 - write module parameters to sysfs
   - `echo <value> | sudo tee /sys/module/<module_name>/parameters/<parameter_name>` to write the module parameters.
-  - `cat /sys/module/module-param/parameters/int_param` to read the module parameters to check if the parameters are set correctly.
+  - `cat /sys/module/<module_name>/parameters/<parameter_name>` to read the module parameters to check if the parameters are set correctly.
 
 Run `02-module-param`:
 
 ```bash
-sudo insmod src/02-module-param/module-param.ko int_param=10 bool_param=1 char_param=a string_param=hello
+sudo insmod src/02-module-param/module-param.ko int_param=10 bool_param=1 charp_param=a string_param=hello
 sudo dmesg | tail -n 10
 sudo rmmod module-param
 ```
