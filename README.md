@@ -6,13 +6,19 @@ Build to learn Linux driver
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential linux-headers-$(uname -r)
+sudo apt install -y build-essential linux-headers-$(uname -r) bear clangd
 ```
 
 ## Build
 
 ```bash
 make
+```
+
+### Clangd
+
+```bash
+bear -- make
 ```
 
 ## Run

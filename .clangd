@@ -1,5 +1,4 @@
 CompileFlags:
-  # kernel Makefile 丟出來、clangd 常消化不良的旗標先拿掉
   Remove:
     - -m*
     - -f*sanitize*
