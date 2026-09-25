@@ -41,7 +41,7 @@ static ssize_t char_read(struct file *file, char __user *buff, size_t count,
   available = data_size - *ppos;
   to_copy = min(available, count);
 
-  if (copy_to_user(buff, device_buf, to_copy)) {
+  if (copy_to_user(buff, device_buf + *ppos, to_copy)) {
     return -EFAULT;
   }
 
@@ -90,7 +90,11 @@ static int __init char_dev_init(void) {
     goto err_unregister;
   }
 
-  char_class = class_create(DEVICE_NAME);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
+  char_class = class_create(CLASS_NAME);
+#else
+  char_class = class_create(THIS_MODULE, CLASS_NAME);
+#endif
 
   if (IS_ERR(char_class)) {
     ret = PTR_ERR(char_class);

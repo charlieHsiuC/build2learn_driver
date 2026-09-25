@@ -89,10 +89,10 @@ Build simple char device driver:
   - `IS_ERR`: check if the pointer is an error.
   - `PTR_ERR`: get the error code from the pointer.
 - unload module flow: reverse order of module initialization.
-  - `cdev_del`: delete the cdev.
-  - `device_destroy`: delete the device.
-  - `class_destroy`: delete the class.
-  - `unregister_chrdev_region`: unregister the device number.
+  1. `device_destroy`: delete the device.
+  2. `class_destroy`: delete the class.
+  3. `cdev_del`: delete the cdev.
+  4. `unregister_chrdev_region`: unregister the device number.
 - print error message
   - `pr_err`: print error message to the kernel log.
 
@@ -108,6 +108,6 @@ Test char device driver by userspace program:
 
 ```bash
 sudo insmod src/03-char-dev/char-dev.ko
-./src/03-char-dev/test-char-dev
+sudo ./src/03-char-dev/test-char-dev
 sudo rmmod char-dev
 ```

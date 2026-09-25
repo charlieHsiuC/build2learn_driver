@@ -41,6 +41,8 @@ static int do_read(void) {
     return 1;
   }
 
+  printf("read bytes to filled buf at once\n");
+
   n = read(fd, buf, sizeof(buf));
 
   if (n < 0) {
@@ -63,14 +65,48 @@ static int do_read(void) {
   return 0;
 }
 
+static int do_read_byte(void) {
+  int fd;
+  ssize_t n = 1;
+  char buf[BUF_LEN];
+  size_t idx = 0;
+
+  fd = open(DEV_PATH, O_RDONLY);
+  if (fd < 0) {
+    perror("open read");
+    return 1;
+  }
+
+  printf("read one byte each time\n");
+  while (n > 0 && idx < BUF_LEN) {
+    n = read(fd, buf + (idx++), 1);
+  }
+
+  if (n < 0) {
+    perror("read byte");
+    close(fd);
+    return 1;
+  }
+
+  printf("read %zd bytes: \"%.*s\"\n", idx - 1, (int)idx, buf);
+  printf("read: %zd bytes at the end (expect 0)\n", n);
+
+  close(fd);
+  return 0;
+}
+
 int main() {
-  const char *msg = "hello from userspace\n";
+  const char *msg = "hello from userspace";
 
   if (do_write(msg)) {
     return 1;
   }
 
   if (do_read()) {
+    return 1;
+  }
+
+  if (do_read_byte()) {
     return 1;
   }
 
