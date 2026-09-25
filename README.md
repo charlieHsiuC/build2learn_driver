@@ -62,3 +62,52 @@ sudo insmod src/02-module-param/module-param.ko int_param=10 bool_param=1 charp_
 sudo dmesg | tail -n 10
 sudo rmmod module-param
 ```
+
+### 03-char-dev
+
+Build simple char device driver:
+
+- function pointers
+  - file operations
+    - `open`
+    - `release`
+    - `read`
+    - `write`
+- userspace data transfer
+  - `copy_from_user`
+  - `copy_to_user`
+- device registration
+  - `alloc_chrdev_region`: allocate a range of device numbers for the device
+  - `cdev_init`: initialize a cdev structure with the file operations
+  - `cdev_add`: add a cdev to the system with the device number
+  - `class_create`: create a class for the device
+  - `device_create`: create a device with the class and the device number, kernel will create a device node in sysfs and send uevent to userspace
+- device number
+  - `MAJOR`: major number of the device, represents the device type.
+  - `MINOR`: minor number of the device, represents the device instance.
+- error handling
+  - `IS_ERR`: check if the pointer is an error.
+  - `PTR_ERR`: get the error code from the pointer.
+- unload module flow: reverse order of module initialization.
+  - `cdev_del`: delete the cdev.
+  - `device_destroy`: delete the device.
+  - `class_destroy`: delete the class.
+  - `unregister_chrdev_region`: unregister the device number.
+- print error message
+  - `pr_err`: print error message to the kernel log.
+
+Run `03-char-dev`:
+
+```bash
+sudo insmod src/03-char-dev/char-dev.ko
+sudo dmesg | tail -n 10
+sudo rmmod char-dev
+```
+
+Test char device driver by userspace program:
+
+```bash
+sudo insmod src/03-char-dev/char-dev.ko
+./src/03-char-dev/test-char-dev
+sudo rmmod char-dev
+```
