@@ -111,3 +111,60 @@ sudo insmod src/03-char-dev/char-dev.ko
 sudo ./src/03-char-dev/test-char-dev
 sudo rmmod char-dev
 ```
+
+### 04-mutex
+
+Add mutex to the char device driver to synchronize access to the device.
+
+- `mutex_init`: initialize a mutex.
+- `mutex_lock`: lock a mutex.
+- `mutex_lock_interruptible`: lock a mutex and return -ERESTARTSYS if the mutex is locked.
+- `mutex_unlock`: unlock a mutex.
+
+Add delay to the write operation to simulate the real-world scenario.
+
+- `usleep_range`: sleep for a random amount of time.
+
+`test-char-dev`: userspace program to test the char device driver.
+
+- create multiple processes to write 16 bytes data with same character to the device concurrently.
+- expect every read from the device should be the same character if mutex works correctly.
+
+Run `04-mutex`:
+
+#### Enable mutex
+
+```bash
+sudo insmod src/04-mutex/char-dev.ko use_lock=1 delay_us=200
+sudo ./src/04-mutex/test-char-dev
+sudo rmmod char-dev
+```
+
+Output:
+
+```bash
+PASS
+```
+
+#### Disable mutex
+
+```bash
+sudo insmod src/04-mutex/char-dev.ko use_lock=0 delay_us=200
+sudo ./src/04-mutex/test-char-dev
+sudo rmmod char-dev
+```
+
+Output:
+
+```bash
+GGGGGGGGDDDDDDDD
+HHHHHHHHFFFFFFFF
+HHHHHHHHFFFFFFFF
+HHHHHHHHFFFFFFFF
+HHHHHHHHFFFFFFFF
+HHHHHHHHGGGGGGGG
+HHHHHHHHGGGGGGGG
+HHHHHHHHGGGGGGGG
+HHHHHHHHGGGGGGGG
+FAIL
+```
