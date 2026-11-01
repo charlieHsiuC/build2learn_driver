@@ -2,36 +2,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
-#include <wait.h>
 
 #define DEV_PATH "/dev/build2learn_char"
 #define W_BUF_LEN 16
 #define R_BUF_LEN 16
 #define WRITER_CNT 8
-#define LOOP_CNT 20
+#define LOOP_CNT 1000
 
 static void writer(char c) {
   char buf[W_BUF_LEN];
   int fd;
   ssize_t n;
 
-  fd = open(DEV_PATH, O_WRONLY);
-  if (fd < 0) {
-    perror("write open fail");
-    exit(1);
-  }
-
   memset(buf, c, sizeof(buf));
-  n = write(fd, buf, sizeof(buf));
-  close(fd);
 
-  if (n != sizeof(buf)) {
-    perror("write fail");
-    exit(1);
-  } else {
-    exit(0);
+  for (int i = 0; i < LOOP_CNT; i++) {
+    fd = open(DEV_PATH, O_WRONLY);
+    if (fd < 0) {
+      perror("write open fail");
+      exit(1);
+    }
+
+    n = write(fd, buf, sizeof(buf));
+    close(fd);
+
+    if (n != sizeof(buf)) {
+      perror("write fail");
+      exit(1);
+    }
   }
+
+  exit(0);
 }
 
 static int reader() {

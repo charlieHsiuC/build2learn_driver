@@ -118,12 +118,20 @@ Add mutex to the char device driver to synchronize access to the device.
 
 - `mutex_init`: initialize a mutex.
 - `mutex_lock`: lock a mutex.
-- `mutex_lock_interruptible`: lock a mutex and return -ERESTARTSYS if the mutex is locked.
+- `mutex_lock_interruptible`: lock a mutex
+  - returns -EINTR if a signal arrives while waiting.
+  - The driver then returns -ERESTARTSYS to user space.
 - `mutex_unlock`: unlock a mutex.
 
-Add delay to the write operation to simulate the real-world scenario.
+Add a delay in the write operation to widen the race window for concurrent access.
 
-- `usleep_range`: sleep for a random amount of time.
+- `usleep_range`: sleep for a duration between a minimum and a maximum.
+  - The range lets the kernel combine the wakeup with other timers, reducing extra interrupts.
+
+Add parameter to control the mutex and delay, set the permission of the parameters to 0444 to only allow read access.
+
+- `use_lock`: 0 to disable mutex, 1 to enable mutex.
+- `delay_us`: delay in microseconds.
 
 `test-char-dev`: userspace program to test the char device driver.
 
