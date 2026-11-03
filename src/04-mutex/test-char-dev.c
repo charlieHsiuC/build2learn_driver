@@ -90,7 +90,7 @@ int main() {
     return -1;
   }
 
-  printf("%s\n", is_good ? "PASS\n" : "FAIL\n");
+  printf("%s\n", is_good ? "PASS" : "FAIL");
 
   return is_good == 0;
 }

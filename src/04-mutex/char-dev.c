@@ -29,8 +29,8 @@ static bool use_lock = true;
 module_param(use_lock, bool, 0444);
 MODULE_PARM_DESC(use_lock, "Enable mutex lock when read/write");
 
-static int delay_us = 0;
-module_param(delay_us, int, 0444);
+static uint delay_us = 0;
+module_param(delay_us, uint, 0444);
 MODULE_PARM_DESC(delay_us,
                  "Add a delay after copying half of the user buffer in write");
 
@@ -49,7 +49,7 @@ static ssize_t char_read(struct file *file, char __user *buff, size_t count,
   size_t available;
   size_t to_copy;
   unsigned long rst;
-  size_t ret = 0;
+  ssize_t ret = 0;
 
   if (use_lock) {
     if (mutex_lock_interruptible(&device_data.mtx)) {
@@ -87,7 +87,7 @@ static ssize_t char_write(struct file *file, const char __user *buff,
                           size_t count, loff_t *ppos) {
 
   size_t to_copy = min(count, BUF_LEN);
-  size_t ret = 0;
+  ssize_t ret = 0;
 
   if (use_lock) {
     if (mutex_lock_interruptible(&device_data.mtx)) {
@@ -100,24 +100,24 @@ static ssize_t char_write(struct file *file, const char __user *buff,
   if (rst) {
     ret = -EFAULT;
     goto out;
-  } else {
-    if (delay_us) {
-      usleep_range(delay_us, delay_us + 10);
-    }
-
-    rst = copy_from_user(device_data.buf + (to_copy / 2), buff + (to_copy / 2),
-                         to_copy - (to_copy / 2));
-
-    if (rst) {
-      ret = -EFAULT;
-      goto out;
-    } else {
-      pr_info("%s: write %zu bytes\n", DEVICE_NAME, to_copy);
-      device_data.size = to_copy;
-      *ppos = to_copy;
-      ret = to_copy;
-    }
   }
+
+  if (delay_us) {
+    usleep_range(delay_us, delay_us + 10);
+  }
+
+  rst = copy_from_user(device_data.buf + (to_copy / 2), buff + (to_copy / 2),
+                       to_copy - (to_copy / 2));
+
+  if (rst) {
+    ret = -EFAULT;
+    goto out;
+  }
+
+  pr_info("%s: write %zu bytes\n", DEVICE_NAME, to_copy);
+  device_data.size = to_copy;
+  *ppos = to_copy;
+  ret = to_copy;
 
 out:
   if (use_lock)
