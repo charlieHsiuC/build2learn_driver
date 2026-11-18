@@ -1,3 +1,5 @@
+#include <asm-generic/errno-base.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +22,9 @@ static void writer(char c) {
 
   for (int i = 0; i < LOOP_CNT; i++) {
     fd = open(DEV_PATH, O_WRONLY);
+    while (fd < 0 && errno == EBUSY) {
+      fd = open(DEV_PATH, O_WRONLY);
+    }
     if (fd < 0) {
       perror("write open fail");
       exit(1);
@@ -45,6 +50,9 @@ static int reader() {
 
   for (int i = 0; i < LOOP_CNT; i++) {
     fd = open(DEV_PATH, O_RDONLY);
+    while (fd < 0 && errno == EBUSY) {
+      fd = open(DEV_PATH, O_WRONLY);
+    }
     if (fd < 0) {
       perror("read open fail");
       return -1;

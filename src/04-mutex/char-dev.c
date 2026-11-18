@@ -1,3 +1,4 @@
+#include <linux/atomic.h>
 #include <linux/cdev.h>
 #include <linux/delay.h>
 #include <linux/device.h>
@@ -34,12 +35,22 @@ module_param(delay_us, uint, 0444);
 MODULE_PARM_DESC(delay_us,
                  "Add a delay after copying half of the user buffer in write");
 
+static atomic_t open_count = ATOMIC_INIT(0);
+
 static int char_open(struct inode *inode, struct file *file) {
+  if (file->f_mode & FMODE_WRITE) {
+    if (atomic_cmpxchg(&open_count, 0, 1) != 0) {
+      return -EBUSY;
+    }
+  }
   pr_info("%s: open\n", DEVICE_NAME);
   return 0;
 }
 
 static int char_release(struct inode *inode, struct file *file) {
+  if (file->f_mode & FMODE_WRITE) {
+    atomic_set(&open_count, 0);
+  }
   pr_info("%s: close\n", DEVICE_NAME);
   return 0;
 }
