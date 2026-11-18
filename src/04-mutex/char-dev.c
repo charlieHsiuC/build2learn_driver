@@ -35,11 +35,11 @@ module_param(delay_us, uint, 0444);
 MODULE_PARM_DESC(delay_us,
                  "Add a delay after copying half of the user buffer in write");
 
-static atomic_t open_count = ATOMIC_INIT(0);
+static atomic_t write_open_count = ATOMIC_INIT(0);
 
 static int char_open(struct inode *inode, struct file *file) {
   if (file->f_mode & FMODE_WRITE) {
-    if (atomic_cmpxchg(&open_count, 0, 1) != 0) {
+    if (atomic_cmpxchg(&write_open_count, 0, 1) != 0) {
       return -EBUSY;
     }
   }
@@ -49,7 +49,7 @@ static int char_open(struct inode *inode, struct file *file) {
 
 static int char_release(struct inode *inode, struct file *file) {
   if (file->f_mode & FMODE_WRITE) {
-    atomic_set(&open_count, 0);
+    atomic_set(&write_open_count, 0);
   }
   pr_info("%s: close\n", DEVICE_NAME);
   return 0;
@@ -81,11 +81,11 @@ static ssize_t char_read(struct file *file, char __user *buff, size_t count,
   if (rst) {
     ret = -EFAULT;
     goto out;
-  } else {
-    pr_info("%s: read %zu bytes\n", DEVICE_NAME, to_copy);
-    *ppos += to_copy;
-    ret = to_copy;
   }
+
+  pr_info("%s: read %zu bytes\n", DEVICE_NAME, to_copy);
+  *ppos += to_copy;
+  ret = to_copy;
 
 out:
   if (use_lock)
@@ -99,6 +99,7 @@ static ssize_t char_write(struct file *file, const char __user *buff,
 
   size_t to_copy = min(count, BUF_LEN);
   ssize_t ret = 0;
+  unsigned long rst = 0;
 
   if (use_lock) {
     if (mutex_lock_interruptible(&device_data.mtx)) {
@@ -106,7 +107,7 @@ static ssize_t char_write(struct file *file, const char __user *buff,
     }
   }
 
-  unsigned long rst = copy_from_user(device_data.buf, buff, to_copy / 2);
+  rst = copy_from_user(device_data.buf, buff, to_copy / 2);
 
   if (rst) {
     ret = -EFAULT;

@@ -180,7 +180,7 @@ FAIL
 #### Atomic Operations
 
 Atomic operations are used to synchronize access to shared data in a concurrent environment.
-We add a flag to count the number of open operations and limit the access to the device by multiple processes.
+We add a flag to limit the device to be written by only one process at a time.
 
 - ATOMIC_INIT: initialize an atomic variable.
 - atomic_cmpxchg: compare and exchange the value of an atomic variable.

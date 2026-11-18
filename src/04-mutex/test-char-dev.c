@@ -1,6 +1,6 @@
-#include <asm-generic/errno-base.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +23,7 @@ static void writer(char c) {
   for (int i = 0; i < LOOP_CNT; i++) {
     fd = open(DEV_PATH, O_WRONLY);
     while (fd < 0 && errno == EBUSY) {
+      sched_yield();
       fd = open(DEV_PATH, O_WRONLY);
     }
     if (fd < 0) {
